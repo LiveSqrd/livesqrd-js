@@ -8,7 +8,7 @@
 (function(root, factory){
   if (typeof define === 'function' && define.amd) {
     define(['underscore', 'jquery', 'exports'], function(_, $, exports) {
-      root.LSQ = factory(root, exports, _, $);
+      root.lsq = factory(root, exports, _, $);
     });
 
   // Next for Node.js or CommonJS. jQuery may not be needed as a module.
@@ -19,25 +19,25 @@
 
   // Finally, as a browser global.
   } else {
-    root.LSQ = factory(root, {}, root._, (root.jQuery || root.Zepto || root.ender || root.$));
+    root.lsq = factory(root, {}, root._, (root.jQuery || root.Zepto || root.ender || root.$));
   }
 
-}(this, function(root, LSQ, _, $) {
+}(this, function(root, lsq, _, $) {
 
 
-  var previousLSQ = root.LSQ;
+  var previouslsq = root.lsq;
   var array = [];
   var push = array.push;
   var slice = array.slice;
   var splice = array.splice;
-  LSQ.VERSION = '0.1.3';
-  LSQ.$ = $;
-  LSQ.noConflict = function() {
-    root.LSQ = previousLSQ;
+  lsq.VERSION = '0.1.3';
+  lsq.$ = $;
+  lsq.noConflict = function() {
+    root.lsq = previouslsq;
     return this;
   };
 
-	LSQ.setup = function(host,token,options){
+	lsq.Db = function(host,token,options){
 		this.host  = host;
 		this.token  = token;
 		this.options = _.isObject(options) ? options : {};
@@ -45,7 +45,7 @@
 		return this;
 	}
 
-	LSQ.create = function(collection,data,options,callback){
+	lsq.Db.prototype.create = function(collection,data,options,callback){
 		callback = _.isFunction(callback)? callback : function(){};
 
 		if(_.isFunction(options)){
@@ -70,7 +70,7 @@
 			
 	}
 
-	LSQ.read = function(collection,data,options,callback){
+	lsq.Db.prototype.read = function(collection,data,options,callback){
 		callback = _.isFunction(callback)? callback : function(){};
 
 		if(_.isFunction(options)){
@@ -99,7 +99,7 @@
 			
 	}
 
-	LSQ.update = function(collection,data,model,options,callback){
+	lsq.Db.prototype.update = function(collection,data,model,options,callback){
 		callback = _.isFunction(callback)? callback : function(){};
 
 		if(_.isFunction(options)){
@@ -128,7 +128,7 @@
 		this.apiCall("update",data,options,callback)
 			
 	}
-	LSQ.delete = function(collection,data,options,callback){
+	lsq.Db.prototype.delete = function(collection,data,options,callback){
 		callback = _.isFunction(callback)? callback : function(){};
 
 		if(_.isFunction(options)){
@@ -156,7 +156,7 @@
 		this.apiCall("delete",data,options,callback)
 			
 	}
-	LSQ.count = function(collection,data,options,callback){
+	lsq.Db.prototype.count = function(collection,data,options,callback){
 		
 
 		if(_.isFunction(options)){
@@ -185,7 +185,7 @@
 			
 	}
 
-	LSQ.aggregate = function(collection,data,options,callback){
+	lsq.Db.prototype.aggregate = function(collection,data,options,callback){
 		
 
 		if(_.isFunction(options)){
@@ -214,21 +214,21 @@
 			
 	}
 
-	LSQ.apiCall = function(method,data,options,callback){
+	lsq.Db.prototype.apiCall = function(method,data,options,callback){
 
-		if(this.$ && _.isFunction(this.$.ajax))
+		if($ && _.isFunction($.ajax))
 			httpsApi(this,method,data,options,callback)
 		 else
 		 	httpsNode(this,method,data,options,callback)
 		
 	}
 
-	LSQ._objToPaths = _objToPaths;
-	LSQ._has = _has;
-	LSQ._get = _get;
-	LSQ._set = _set; 
-	LSQ.clean = existsClean; 
-	LSQ.validation = validation; 
+	lsq._objToPaths = lsq.Db.prototype._objToPaths = _objToPaths;
+	lsq._has = lsq.Db.prototype._has = _has;
+	lsq._get = lsq.Db.prototype._get = _get;
+	lsq._set = lsq.Db.prototype._set = _set; 
+	lsq.clean = lsq.Db.prototype.existsClean = existsClean; 
+	lsq.validation = lsq.Db.prototype.validation = validation; 
 
 	function httpsApi(self,method,data,options,callback){
 		var op 		= {}
@@ -282,6 +282,13 @@
 			break;
 			case "delete":
 				body.request= "delete";
+				if(_.isEmpty(body.query)) return callback("query is empty",{})
+			break;
+			case "count":
+				body.request= "count";
+			break;
+			case "aggregate":
+				body.request= "aggregate";
 				if(_.isEmpty(body.query)) return callback("query is empty",{})
 			break;
 			default:
@@ -799,6 +806,6 @@
 		return data;
 	}
 
- return LSQ;
+ return lsq;
 
 }));
